@@ -1,0 +1,57 @@
+{
+  "name": "prompt-boost",
+  "displayName": "Prompt Boost",
+  "description": "Improve Copilot prompts and recommend the best model. Optional token-saving mode engineers prompts for minimal downstream token consumption.",
+  "version": "0.2.0",
+  "publisher": "your-team",
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Chat"
+  ],
+  "extensionDependencies": [
+    "github.copilot-chat"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "prompt-boost.participant",
+        "fullName": "Prompt Boost",
+        "name": "prompt-boost",
+        "description": "Improve your Copilot prompts and get model recommendations",
+        "isSticky": false,
+        "commands": [
+          {
+            "name": "tokensave",
+            "description": "Toggle token-saving mode: /tokensave on | /tokensave off"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "prompt-boost.openChat",
+        "title": "Prompt Boost: Open Chat"
+      },
+      {
+        "command": "prompt-boost.selectBoostModel",
+        "title": "Prompt Boost: Select Boost Model"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.91.0",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.4.0"
+  }
+}
