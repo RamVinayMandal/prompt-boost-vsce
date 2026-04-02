@@ -1,0 +1,21 @@
+# Source files — only dist/extension.js is needed at runtime
+src/
+tsconfig.json
+
+# VS Code workspace config
+.vscode/
+
+# Dev tooling
+.eslintrc*
+.prettierrc*
+node_modules/
+
+# Build artifacts not needed in package
+dist/*.map
+
+# Git
+.gitignore
+.git/
+
+# Older packages
+*.vsix

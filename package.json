@@ -2,8 +2,8 @@
   "name": "prompt-boost",
   "displayName": "Prompt Boost",
   "description": "Improve Copilot prompts and recommend the best model. Optional token-saving mode engineers prompts for minimal downstream token consumption.",
-  "version": "0.2.0",
-  "publisher": "your-team",
+  "version": "1.0.0",
+  "publisher": "RamVinayMandal",
   "engines": {
     "vscode": "^1.91.0"
   },
