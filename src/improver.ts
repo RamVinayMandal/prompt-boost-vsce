@@ -30,7 +30,11 @@ Steps:
    - If no history context is provided, only rephrase what the user stated. Do not add requirements.
 3. Classify task: one of [code-gen, debug, test, docs, refactor, architecture, data, other]
 
-Assumptions: If a detail is not in the prompt or known context, mark it as "[Assumption: <what> — verify]". Only mark genuinely uncertain details; skip when obvious.`;
+Assumptions: If a detail is not in the prompt or known context, mark it as "[Assumption: <what> — verify]". Only mark genuinely uncertain details; skip when obvious.
+IMPORTANT EXCEPTION — do not add assumptions for demonstrative or referential phrases like
+"these three projects", "the above files", "the mentioned services", "those components" etc.
+These refer to context the user already has visible in their chat.
+Preserve them exactly as written — do not try to resolve or replace them.`;
 
 const SYSTEM_PROMPT_QUALITY_ONLY = `${SYSTEM_PROMPT_BASE}${JSON_INSTRUCTION}`;
 
@@ -109,6 +113,29 @@ function clampScore(raw: unknown): number {
   return Number.isNaN(n) ? 0 : Math.min(100, Math.max(0, Math.round(n)));
 }
 
+function extractJsonObject(text: string): string | undefined {
+  const start = text.indexOf('{');
+  if (start === -1) { return undefined; }
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\' && inString) { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) { continue; }
+    if (ch === '{') { depth++; }
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) { return text.slice(start, i + 1); }
+    }
+  }
+  return undefined;
+}
+
 function parseBoostResult(raw: string): BoostResult | undefined {
   let cleaned = raw.trim();
   if (cleaned.startsWith('```')) {
@@ -118,9 +145,9 @@ function parseBoostResult(raw: string): BoostResult | undefined {
   try {
     return toBoostResult(JSON.parse(cleaned));
   } catch {
-    const jsonMatch = /\{[^}]*"improved"[^}]*\}/s.exec(cleaned);
-    if (jsonMatch) {
-      try { return toBoostResult(JSON.parse(jsonMatch[0])); } catch { /* give up */ }
+    const extracted = extractJsonObject(cleaned);
+    if (extracted) {
+      try { return toBoostResult(JSON.parse(extracted)); } catch { /* give up */ }
     }
   }
   return undefined;
