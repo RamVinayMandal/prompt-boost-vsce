@@ -4,6 +4,11 @@ import { getRecommendedModel } from './modelRecommender';
 
 const TOKEN_SAVING_KEY = 'tokenSaving';
 const PREFERRED_BOOST_MODEL_ID_KEY = 'preferredBoostModelId';
+
+// vscode.ChatRequest does not declare `mode` in @types/vscode 1.91, but VS Code 1.97+ exposes it at runtime.
+interface ChatRequestWithMode extends vscode.ChatRequest {
+  readonly mode?: string;
+}
 const ACTION_WORD_PATTERNS = [
   /\b(fix|add|create|update|remove|delete|refactor|explain|generate|write|help)\b/i,
   /\b(show|find|check|test|review|debug|implement|build|change|make)\b/i,
@@ -170,9 +175,8 @@ async function handleRequest(
   const tokenSaving = isTokenSavingOn(context);
   const preferredBoostModelId = getPreferredBoostModelId(context);
 
-  const historyContext = formatHistory([...chatContext.history], tokenSaving);
-  // Read the user-selected VS Code chat mode at runtime (present in VS Code 1.97+, not in @types/vscode 1.91)
-  const userSelectedMode = (request as unknown as Record<string, unknown>).mode as string | undefined;
+  const historyContext = formatHistory(chatContext.history, tokenSaving);
+  const userSelectedMode = (request as ChatRequestWithMode).mode;
 
   stream.progress('Boosting your prompt...');
 
